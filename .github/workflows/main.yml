@@ -41,7 +41,8 @@ jobs:
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
+      
+          - uses: actions/upload-artifact@v4
         with:
           name: Baskandi-Azan-APK
-           /tmp/output/
-path: '**/*.apk'
+          path: '**/*.apk'           

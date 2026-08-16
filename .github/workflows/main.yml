@@ -1,46 +1,54 @@
-name: Build Flutter APK
+name: Build Baskandi Madrasa Azan APK
 
 on:
   push:
-    branches: [ main, master ]
+    branches:
+      - main
+      - master
   workflow_dispatch:
 
 jobs:
   build:
+    name: Build Release APK
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Java
-        uses: actions/setup-java@v4
+      - name: Setup Java 17
+        uses: actions/setup-java@v5
         with:
-          distribution: 'zulu'
-          java-version: '21'
+          distribution: temurin
+          java-version: '17'
 
-      - name: Set up Flutter
+      - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
+          channel: stable
+          cache: true
 
-      - name: Unzip Project Files
+      - name: Check Flutter project
         run: |
-          mkdir -p project_files
-          unzip -o *.zip -d project_files || true
+          echo "Checking Flutter project..."
+          test -f pubspec.yaml
+          echo "pubspec.yaml found successfully."
 
-      - name: Find Project Root & Build
+      - name: Get Flutter dependencies
+        run: flutter pub get
+
+      - name: Build Release APK
+        run: flutter build apk --release --no-tree-shake-icons
+
+      - name: Verify APK
         run: |
-          ROOT_DIR=$(find project_files -name "pubspec.yaml" -exec dirname {} \;)
-          echo "Found project at $ROOT_DIR"
-          cd "$ROOT_DIR"
-          flutter pub get
-          flutter build apk --release --no-tree-shake-icons
-          mkdir -p /tmp/output
-          cp build/app/outputs/flutter-apk/app-release.apk /tmp/output/app-release.apk
+          echo "APK files:"
+          ls -lh build/app/outputs/flutter-apk/
+          test -f build/app/outputs/flutter-apk/app-release.apk
 
-      - name: Upload APK Artifact
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Baskandi-Azan-APK
-          path: /tmp/output/
+          name: Baskandi-Madrasa-Azan-APK
+          path: build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error

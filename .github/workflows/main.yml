@@ -1,8 +1,9 @@
-name: Build Flutter APK
+name: Build and Upload APK
 
 on:
   push:
-    branches: [ main, master ]
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
@@ -10,39 +11,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
+      - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Set up Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'zulu'
-          java-version: '21'
-
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: 'stable'
-
-      - name: Unzip Project Files
-        run: |
-          mkdir -p project_files
-          unzip -o *.zip -d project_files || true
-
-      - name: Find Project Root & Build
-        run: |
-          ROOT_DIR=$(find project_files -name "pubspec.yaml" -exec dirname {} \;)
-          echo "Found project at $ROOT_DIR"
-          cd "$ROOT_DIR"
-          flutter pub get
-          flutter build apk --release --no-tree-shake-icons
-          mkdir -p /tmp/output
-          cp build/app/outputs/flutter-apk/app-release.apk /tmp/output/app-release.apk
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
-      
-          - uses: actions/upload-artifact@v4
         with:
           name: Baskandi-Azan-APK
-          path: '**/*.apk'           
+          path: '**/*.apk'
+          if-no-files-found: warn

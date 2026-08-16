@@ -25,21 +25,23 @@ jobs:
           flutter-version: '3.29.0'
           channel: 'stable'
 
-      - name: Extract ZIP
-        run: unzip Baskandi_Madrasa_Azan_Production_Ready_v1.1.0.zip -d project_files
-
-      - name: Install Dependencies
+      - name: Unzip Project Files
         run: |
-          cd project_files
+          mkdir -p project_files
+          unzip -o *.zip -d project_files || true
+
+      - name: Find Project Root & Build
+        run: |
+          ROOT_DIR=$(find project_files -name "pubspec.yaml" -exec dirname {} \;)
+          echo "Found project at $ROOT_DIR"
+          cd "$ROOT_DIR"
           flutter pub get
-
-      - name: Build Release APK
-        run: |
-          cd project_files
           flutter build apk --release --no-tree-shake-icons
+          mkdir -p /tmp/output
+          cp build/app/outputs/flutter-apk/app-release.apk /tmp/output/app-release.apk
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: Baskandi-Azan-APK
-          path: project_files/build/app/outputs/flutter-apk/app-release.apk
+          path: /tmp/output/app-release.apk

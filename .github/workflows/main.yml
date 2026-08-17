@@ -23,7 +23,7 @@ jobs:
         with:
           flutter-version: '3.19.x'
 
-      - name: Extract Zip and Find Project Root
+      - name: Extract Zip and Build
         run: |
           mkdir -p extracted_project
           for zip in *.zip; do
@@ -32,13 +32,13 @@ jobs:
             fi
           done
 
-          ROOT_DIR=$(find . -name "pubspec.yaml" -exec dirname {} \; | head -n 1)
-          echo "PROJECT_ROOT=$ROOT_DIR" >> $GITHUB_ENV
-          echo "Project found at $ROOT_DIR"
+          ROOT_DIR=$(find extracted_project -name "pubspec.yaml" -exec dirname {} \; | head -n 1)
+          if [ -z "$ROOT_DIR" ]; then
+            ROOT_DIR=$(find . -maxdepth 2 -name "pubspec.yaml" -exec dirname {} \; | head -n 1)
+          fi
 
-      - name: Build APK
-        run: |
-          cd "$PROJECT_ROOT"
+          echo "PROJECT_ROOT=$ROOT_DIR" >> $GITHUB_ENV
+          cd "$ROOT_DIR"
           flutter pub get
           flutter build apk --release --no-tree-shake-icons
           mkdir -p /tmp/output

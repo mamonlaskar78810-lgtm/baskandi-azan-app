@@ -16,29 +16,35 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
-          java-version: '21'
+          java-version: '17'
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.19.x'
 
-      - name: Unzip Project Files
+      - name: Extract Zip and Find Project Root
         run: |
-          mkdir -p project_files
-          unzip -o "*.zip" -d project_files || true
+          mkdir -p extracted_project
+          for zip in *.zip; do
+            if [ -f "$zip" ]; then
+              unzip -o "$zip" -d extracted_project/
+            fi
+          done
 
-      - name: Find Project Root & Build
-        run: |
           ROOT_DIR=$(find . -name "pubspec.yaml" -exec dirname {} \; | head -n 1)
-          echo "Found project at $ROOT_DIR"
-          cd "$ROOT_DIR"
+          echo "PROJECT_ROOT=$ROOT_DIR" >> $GITHUB_ENV
+          echo "Project found at $ROOT_DIR"
+
+      - name: Build APK
+        run: |
+          cd "$PROJECT_ROOT"
           flutter pub get
           flutter build apk --release --no-tree-shake-icons
           mkdir -p /tmp/output
           cp build/app/outputs/flutter-apk/app-release.apk /tmp/output/app-release.apk
 
-      - name: Upload APK Artifact
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: Baskandi-Azan-APK

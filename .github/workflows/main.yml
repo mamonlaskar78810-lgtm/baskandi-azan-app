@@ -1,51 +1,14 @@
-name: Build and Upload APK
-
-on:
-  push:
-    branches: [ main, master ]
-  workflow_dispatch:
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'zulu'
-          java-version: '17'
-
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.19.x'
-
-      - name: Extract Zip and Build
-        run: |
-          mkdir -p extracted_project
-          for zip in *.zip; do
-            if [ -f "$zip" ]; then
-              unzip -o "$zip" -d extracted_project/
-            fi
-          done
-
-          ROOT_DIR=$(find extracted_project -name "pubspec.yaml" -exec dirname {} \; | head -n 1)
-          if [ -z "$ROOT_DIR" ]; then
-            ROOT_DIR=$(find . -maxdepth 2 -name "pubspec.yaml" -exec dirname {} \; | head -n 1)
-          fi
-
-          echo "PROJECT_ROOT=$ROOT_DIR" >> $GITHUB_ENV
-          cd "$ROOT_DIR"
-          flutter pub get
-          flutter build apk --release --no-tree-shake-icons
-          mkdir -p /tmp/output
-          cp build/app/outputs/flutter-apk/app-release.apk /tmp/output/app-release.apk
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: Baskandi-Azan-APK
-          path: /tmp/output/app-release.apk
+- name: Upload APK
+  uses: actions/upload-artifact@v4
+  with:
+    name: app-release
+    path: android/app/build/outputs/apk/release/app-release.apk
+- name: Upload APK
+  uses: actions/upload-artifact@v4
+  with:
+    name: app-release
+    path: build/app/outputs/flutter-apk/app-release.apk
+- name: Build APK
+  run: |
+    cd android
+    ./gradlew assembleRelease

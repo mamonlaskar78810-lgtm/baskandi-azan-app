@@ -1,7 +1,1 @@
-      - name: Install Dependencies
-        run: flutter pub get
-        working-directory: ./YOUR_FOLDER_NAME # এখানে আপনার প্রজেক্ট ফোল্ডারের নাম দিন
 
-      - name: Build APK
-        run: flutter build apk --release
-        working-directory: ./YOUR_FOLDER_NAME # এখানে আপনার প্রজেক্ট ফোল্ডারের নাম দিন

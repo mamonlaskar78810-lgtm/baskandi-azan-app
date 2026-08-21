@@ -10,10 +10,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    # আপনার প্রজেক্ট যদি কোনো সাব-ফোন্ডারে থাকে তবে নিচের ২ লাইন আনকমেন্ট (# তুলে) করে ফোন্ডারের নাম দিন:
-    # defaults:
-    #   run:
-    #     working-directory: ./your-folder-name
+     defaults:
+      run:
+        working-directory: ./your-folder-name
 
     steps:
       - name: Checkout repository

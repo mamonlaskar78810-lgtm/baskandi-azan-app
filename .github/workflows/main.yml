@@ -26,14 +26,14 @@ jobs:
           flutter-version: '3.19.x'
           channel: 'stable'
 
-      - name: Install dependencies
-        run: flutter pub get
+      - name: Get Dependencies
+        run: flutter pub get || (cd * && flutter pub get)
 
       - name: Build APK
-        run: flutter build apk --release
+        run: flutter build apk --release || (cd * && flutter build apk --release)
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: app-release-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          path: '**/build/app/outputs/flutter-apk/*.apk'
